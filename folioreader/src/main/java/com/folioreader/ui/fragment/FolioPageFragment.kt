@@ -401,8 +401,8 @@ class FolioPageFragment : Fragment(),
             mWebview!!.loadUrl("javascript:checkCompatMode()")
             mWebview!!.loadUrl("javascript:alert(getReadingTime())")
 
-            if (mActivityCallback!!.direction == Config.Direction.VERTICAL)
-                mWebview!!.loadUrl("javascript:initHorizontalDirection()")
+//            if (mActivityCallback!!.direction == Config.Direction.VERTICAL)
+//                mWebview!!.loadUrl("javascript:initHorizontalDirection()")
 
             view.loadUrl(
                 String.format(

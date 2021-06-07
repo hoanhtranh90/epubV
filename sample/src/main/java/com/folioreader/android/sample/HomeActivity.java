@@ -16,6 +16,7 @@
 package com.folioreader.android.sample;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -33,9 +34,13 @@ import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,24 +62,24 @@ public class HomeActivity extends AppCompatActivity
 
         getHighlightsAndSave();
 
-        findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Config config = AppUtil.getSavedConfig(getApplicationContext());
-                if (config == null)
-                    config = new Config();
-                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
-
-                folioReader.setConfig(config, true)
-                        .openBook(R.raw.accessible_epub_3);
-            }
-        });
+//        findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                Config config = AppUtil.getSavedConfig(getApplicationContext());
+//                if (config == null)
+//                    config = new Config();
+//                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+//
+//                folioReader.setConfig(config, true)
+//                        .openBook(R.raw.accessible_epub_3);
+//            }
+//        });
 
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Log.d("JSON", "saveReadLocator112345: " + v);
                 ReadLocator readLocator = getLastReadLocator();
 
                 Config config = AppUtil.getSavedConfig(getApplicationContext());
@@ -90,13 +95,42 @@ public class HomeActivity extends AppCompatActivity
 
     private ReadLocator getLastReadLocator() {
 
-        String jsonString = loadAssetTextAsString("Locators/LastReadLocators/last_read_locator_1.json");
-        return ReadLocator.fromJson(jsonString);
+        try {
+            String loc = getApplicationContext().getFilesDir().getAbsolutePath() + "/read_locator.json";
+            File file = new File(loc);
+            String json;
+            InputStream is = new FileInputStream(file);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, StandardCharsets.UTF_8);
+            return ReadLocator.fromJson(json);
+        } catch (Exception ignored) {
+            String jsonString = loadAssetTextAsString("Locators/LastReadLocators/last_read_locator_1.json");
+            return ReadLocator.fromJson(jsonString);
+        }
     }
 
     @Override
     public void saveReadLocator(ReadLocator readLocator) {
         Log.i(LOG_TAG, "-> saveReadLocator -> " + readLocator.toJson());
+        try {
+            String json = readLocator.toJson();
+            Log.d("JSON", "saveReadLocator112345: " + json);
+
+            String loc = getApplicationContext().getFilesDir().getAbsolutePath();
+            File writeLocator = new File(loc, readLocator.getBookId()+".json");
+            FileWriter writer = new FileWriter(writeLocator, false);
+            writer.write(json);
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Book", "saveReadLocator: " + e.getMessage(), e);
+        }
+        Log.i(LOG_TAG, "->  -> ");
     }
 
     /*
