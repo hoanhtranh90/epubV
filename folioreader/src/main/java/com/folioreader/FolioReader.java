@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -134,6 +135,15 @@ public class FolioReader {
         context.startActivity(intent);
         return singleton;
     }
+
+    public FolioReader openBook(Uri assetOrSdcardPath) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(assetOrSdcardPath);
+        context.startActivity(intent);
+        return singleton;
+    }
+
+
 
     public FolioReader openBook(int rawId) {
         Intent intent = getIntentFromUrl(null, rawId);
